@@ -3,45 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AuraFeed Newsroom - Technobeta</title>
-    
-    <link rel="manifest" href="/aurafeed/manifest.json" />
-    <meta name="theme-color" content="#10b981" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="AuraFeed" />
-    <link rel="apple-touch-icon" href="/aurafeed/icon-512.png" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Permanent+Marker&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    
-    <style>
-      html, body {
-        margin: 0; padding: 0; width: 100%; min-height: 100%;
-        background-color: #000000; overflow-y: auto;
-      }
-      body { font-family: 'Roboto', sans-serif; }
-      .no-scrollbar::-webkit-scrollbar { display: none; }
-      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-    <script type="module" crossorigin src="./assets/index-D502wEIn.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-C-8Rv5YB.css">
+    <title>AuraFeed</title>
+    <script type="module" crossorigin src="./assets/index-C0kP8tCO.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D3bppQE-.css">
   </head>
   <body>
     <div id="root"></div>
-    
-    
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          // Path service worker disesuaikan dengan deploy sub-folder
-          navigator.serviceWorker.register("/aurafeed/sw.js")
-            .then((reg) => console.log("SW Registered:", reg.scope))
-            .catch((err) => console.error("SW Failed:", err));
-        });
-      }
-    </script>
   </body>
 </html>
