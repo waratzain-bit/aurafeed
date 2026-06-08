@@ -1,0 +1,8 @@
+{
+  "name": "AuraFeed: Modern Blog & Sheet Sync",
+  "description": "Platform publikasi modern dengan postingan dinamis, generator konten AI (Gemini), dan sinkronisasi otomatis Google Spreadsheet Google Apps Script.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
