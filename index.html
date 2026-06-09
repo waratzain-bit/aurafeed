@@ -4,11 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AuraFeed</title>
-<meta name="google-site-verification" content="tBi-WygeDutQqnFg1vNKDLXIlK2m1F9w8WBVJ3HkCXc" />
-    <script type="module" crossorigin src="/aurafeed/assets/index-C0kP8tCO.js"></script>
-    <link rel="stylesheet" crossorigin href="/aurafeed/assets/index-D3bppQE-.css">
-    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
-  </head>
+    <meta name="google-site-verification" content="tBi-WygeDutQqnFg1vNKDLXIlK2m1F9w8WBVJ3HkCXc" />
+
+    <script type="text/javascript">
+      (function(l) {
+        if (l.search && l.search.startsWith('?/_p=')) {
+          var parts = l.search.slice(5).split('&');
+          
+          // Mengambil rute asli (misal: post/judul-artikel)
+          var rutePost = parts[0].replace(/~and~/g, '&'); 
+          
+          // Mengambil parameter query tambahan jika ada
+          var kueriAsli = parts[1] ? '?' + parts[1].replace(/~and~/g, '&') : '';
+          
+          // Bersihkan trailing slash pada pathname agar penggabungan URL rapi
+          var basePath = l.pathname.endsWith('/') ? l.pathname.slice(0, -1) : l.pathname;
+          
+          // Kembalikan URL asli ke bilah alamat browser & umpan ke React Router
+          window.history.replaceState(null, null,
+            basePath + '/' + rutePost + kueriAsli + l.hash
+          );
+        }
+      }(window.location));
+    </script>
+      <script type="module" crossorigin src="/aurafeed/assets/index-C0kP8tCO.js"></script>
+      <link rel="stylesheet" crossorigin href="/aurafeed/assets/index-D3bppQE-.css">
+      <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+    </head>
   <body>
     <div id="root"></div>
   </body>
