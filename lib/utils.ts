@@ -13,10 +13,10 @@ export function getPostSlug(post: { id: string; title: string }) {
   if (!post || !post.title) return "";
   const cleaned = post.title
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "") // remove non-alphanumeric/hyphen/space
+    .replace(/[^\w\s-]/g, "") 
     .trim()
-    .replace(/[\s_]+/g, "-") // convert spaces & underscores to hyphens
-    .replace(/-+/g, "-"); // collapse multiple hyphens
+    .replace(/[\s_]+/g, "-") 
+    .replace(/-+/g, "-"); 
   return `${cleaned}-${post.id}`;
 }
 
@@ -31,28 +31,26 @@ export function getBasePath() {
   return path.endsWith("/") ? path.slice(0, -1) : path;
 }
 
-// 🛠️ PERBAIKAN 1: Menambahkan akhiran .html pada permalink artikel
+// 🛠️ DIPERBAIKI: Menghapus akhiran .html agar URL bersih (Clean URLs)
 export function getPostPermalink(post: { id: string; title: string }) {
   const basePath = getBasePath();
-  return `${basePath}/post/${getPostSlug(post)}.html`;
+  // Akhiran .html dihapus
+  return `${basePath}/post/${getPostSlug(post)}`;
 }
 
-// 🛠️ PERBAIKAN 2: Membersihkan .html saat membaca URL agar artikel tetap bisa ditemukan
+// 🛠️ DIPERBAIKI: Mencari artikel tanpa bergantung pada ekstensi .html
 export function findPostByIdentifier<T extends { id: string; title: string }>(identifier: string, allPosts: T[]) {
   if (!identifier) return null;
   
-  // Hapus akhiran .html jika ada pada identifier agar pencarian slug/ID tetap akurat
-  const cleanIdentifier = identifier.endsWith(".html") ? identifier.slice(0, -5) : identifier;
+  // Identifier sekarang dianggap sudah bersih (tanpa .html)
+  const cleanIdentifier = identifier.replace(/\.html$/, "");
   
-  // Try exact ID match first
   let match = allPosts.find((p) => p.id === cleanIdentifier);
   if (match) return match;
 
-  // Try exact slug match
   match = allPosts.find((p) => getPostSlug(p) === cleanIdentifier);
   if (match) return match;
 
-  // Try decoding from slug suffix by splitting on last hyphen (e.g. "cara-menulis-123" -> ID "123")
   const lastHyphenIndex = cleanIdentifier.lastIndexOf("-");
   if (lastHyphenIndex !== -1) {
     const possibleId = cleanIdentifier.substring(lastHyphenIndex + 1);
@@ -60,7 +58,6 @@ export function findPostByIdentifier<T extends { id: string; title: string }>(id
     if (match) return match;
   }
 
-  // Fallback fuzzy match
   match = allPosts.find((p) => {
     const postSlug = getPostSlug(p);
     return postSlug.includes(cleanIdentifier) || cleanIdentifier.includes(postSlug);
@@ -85,7 +82,6 @@ export function generateSitemapXml(posts: any[], origin?: string) {
 
   // Each post entry
   posts.forEach((post) => {
-    // Standardize date
     const rawDate = post.createdAt || post.date || new Date().toISOString();
     let formattedDate = "";
     try {
@@ -94,7 +90,9 @@ export function generateSitemapXml(posts: any[], origin?: string) {
       formattedDate = new Date().toISOString().split("T")[0];
     }
 
-    const postPermalink = getPostPermalink(post);
+    // 🛠️ FIX: Pastikan getPostPermalink sudah bersih, 
+    // atau gunakan .replace(".html", "") sebagai pengaman tambahan
+    const postPermalink = getPostPermalink(post).replace(/\.html$/, "");
     const postUrl = `${baseUrl}${postPermalink}`;
 
     xml += `  <url>\n`;

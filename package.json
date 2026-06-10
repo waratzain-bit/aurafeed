@@ -1,54 +1,31 @@
 {
   "name": "past-forward",
-  "private": true,
   "version": "0.0.3",
-  "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
-    "start": "node dist/server.cjs",
-    "preview": "vite preview"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@google/genai": "^1.14.0",
-    "@tailwindcss/vite": "^4.3.0",
     "clsx": "^2.1.1",
     "express": "^5.2.1",
     "framer-motion": "^12.23.12",
     "lucide-react": "^1.14.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-router-dom": "^7.17.0",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
     "@types/express": "^5.0.6",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
-    "axios": "^1.17.0",
     "esbuild": "^0.28.0",
-    "gh-pages": "^6.3.0",
-    "tailwindcss": "^4.3.0",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
-    "vite-plugin-sitemap": "^0.8.2"
-  },
-  "description": "<div align=\"center\"> <img width=\"1200\" height=\"475\" alt=\"GHBanner\" src=\"https://ai.google.dev/static/site-assets/images/share-ais-513315318.png\" /> </div>",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/waratzain-bit/aurafeed.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/waratzain-bit/aurafeed/issues"
-  },
-  "homepage": "https://github.com/waratzain-bit/aurafeed#readme"
+    "vite-plugin-prerender": "^1.0.8"
+  }
 }

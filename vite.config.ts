@@ -1,77 +1,67 @@
-import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import prerender from 'vite-plugin-prerender';
 import tailwindcss from '@tailwindcss/vite';
-import Sitemap from 'vite-plugin-sitemap';
-import axios from 'axios'; 
+import path from 'path';
+import fs from 'fs';
 
-// ===== FUNGSI PENGAMBIL DATA SLUG (ANTI-CACHE & SINKRON FORMAT WEB) =====
-async function ambilSlugSpreadsheet(urlApi) {
-  if (!urlApi) {
-    console.warn("[Sitemap] Peringatan: VITE_API_URL tidak ditemukan di file .env");
-    return [];
-  }
-  
+function ambilRuteDariSitemap() {
   try {
-    const response = await axios.get(`${urlApi}?t=${new Date().getTime()}`);
-    const dataMentah = response.data;
-
-    // 🛠️ FIX 1: Ambil langsung dari dataMentah.data sesuai hasil log CMD Anda
-    const dataArtikel = dataMentah.data || [];
-
-    if (dataArtikel.length === 0) {
-      console.warn("[Sitemap] Peringatan: Tidak ada artikel yang ditemukan di database Spreadsheet.");
-      return [];
+    // 1. Jalur pencarian file sitemap
+    let sitemapPath = path.resolve(__dirname, 'public/sitemap.xml');
+    if (!fs.existsSync(sitemapPath)) {
+      sitemapPath = path.resolve(__dirname, 'sitemap.xml');
     }
 
-    const links = dataArtikel.map(item => {
-      // 🛠️ FIX 2: Replikasi logika pembuatan slug (Judul-ID) agar sinkron dengan utils.ts Anda
-      const judulBersih = String(item.title || 'post')
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, "") // Hapus karakter non-alfanumerik
-        .trim()
-        .replace(/[\s_]+/g, "-") // Ubah spasi & underscore jadi tanda hubung
-        .replace(/-+/g, "-");    // Satukan tanda hubung yang ganda
-      
-      const slugLengkap = `${judulBersih}-${item.id}`;
-      
-      return `/post/${slugLengkap}.html`;
+    // Jika file fisik benar-benar tidak ada di komputer
+    if (!fs.existsSync(sitemapPath)) {
+      console.log("\n❌ [AuraFeed Debug] File sitemap.xml TIDAK ditemukan di folder public/ maupun root!");
+      return ['/'];
+    }
+
+    const sitemapContent = fs.readFileSync(sitemapPath, 'utf-8');
+    
+    // 2. Regex super kuat: kebal spasi, baris baru, dan huruf besar/kecil (<LOC> atau <loc>)
+    const matches = [...sitemapContent.matchAll(/<loc>\s*(.*?)\s*<\/loc>/gi)];
+    const urls = matches.map(m => m[1].trim());
+    
+    console.log(`\n🔍 [AuraFeed Debug] Berhasil menemukan ${urls.length} URL di dalam sitemap.xml`);
+
+    // 3. Konversi URL situs menjadi rute internal React Router
+    const routes = urls.map(url => {
+      try {
+        const urlObj = new URL(url);
+        // Menghapus /aurafeed dan .html agar menjadi rute bersih (contoh: /post/judul-artikel)
+        return urlObj.pathname.replace('/aurafeed', '').replace('.html', '');
+      } catch (e) {
+        return '';
+      }
     });
 
-    // Menghapus duplikasi artikel jika ada & membuang rute kosong
-    const linksUnik = [...new Set(links)].filter(link => !link.includes('tanpa-judul'));
+    // 4. Bersihkan rute kosong dan hilangkan duplikasi
+    const cleanRoutes = routes.map(r => (r === '' || r === '/') ? '/' : r);
+    const finalRoutes = [...new Set(cleanRoutes)].filter(Boolean);
 
-    console.log(`\x1b[32m%s\x1b[0m`, `[Sitemap] 🔥 BERHASIL! Menarik ${linksUnik.length} rute artikel berakhiran .html ke sitemap!`);
-    return linksUnik;
+    // Jaminan: Jika kosong, minimal halaman utama wajib di-render
+    const hasilAkhir = finalRoutes.length > 0 ? finalRoutes : ['/'];
+    
+    console.log("🚀 [AuraFeed Debug] Rute yang dikirim ke Prerender:", hasilAkhir, "\n");
+    return hasilAkhir;
+
   } catch (error) {
-    console.error("[Sitemap] Gagal memproses data spreadsheet untuk sitemap:", error.message);
-    return [];
+    console.error("\n❌ [AuraFeed Debug] Terjadi eror saat membaca sitemap:", error, "\n");
+    return ['/'];
   }
 }
 
-// ===== KONFIGURASI VITE MAIN ENGINE =====
-export default defineConfig(async ({ mode }) => {
-  const env = loadEnv(mode, '.', '');
-  const linkApiDariEnv = env.VITE_API_URL;
-  
-  const ruteDinamisArtikel = await ambilSlugSpreadsheet(linkApiDariEnv);
-  
-  return {
-    plugins: [
-      react(),
-      tailwindcss(),
-      Sitemap({
-        hostname: 'https://waratzain-bit.github.io',
-        basePath: '/aurafeed',
-        exclude: ['/404'],
-        dynamicRoutes: ruteDinamisArtikel 
-      })
-    ],
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src'),
-      },
-    },
-    base: '/aurafeed/',
-  };
+export default defineConfig({
+  base: '/aurafeed/',
+  plugins: [
+    react(),
+    tailwindcss(),
+    prerender({
+      staticDir: path.join(__dirname, 'dist'),
+      routes: ambilRuteDariSitemap(), // Menggunakan fungsi debug di atas
+    }),
+  ],
 });

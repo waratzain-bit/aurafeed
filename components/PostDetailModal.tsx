@@ -211,7 +211,6 @@ export default function PostDetailModal({
     const container = scrollContainerRef.current;
     if (container) {
       container.addEventListener("scroll", handleScroll, { passive: true });
-      // Call once initially
       handleScroll();
     }
 
@@ -230,7 +229,6 @@ export default function PostDetailModal({
 
     const snippetText = post.subtitle || (post.content.length > 155 ? `${post.content.slice(0, 152)}...` : post.content);
 
-    // List of standard meta components
     const tagsToUpdate = [
       { name: "description", content: snippetText },
       { property: "og:title", content: post.title },
@@ -273,10 +271,7 @@ export default function PostDetailModal({
     });
 
     return () => {
-      // Revert title to previous dashboard state
       document.title = originalTitle;
-
-      // Revert metadata states or purge newly generated elements
       originalMetaValues.forEach(({ element, originalValue, isNew }) => {
         if (isNew) {
           element.remove();
@@ -290,14 +285,13 @@ export default function PostDetailModal({
   }, [post.id, post.title, post.subtitle, post.content, post.imageUrl]);
 
   const handleDeleteClick = () => {
-    if (confirm("Apakah Anda yakin ingin menghapus postingan ini secara permanen dari basis data? Pindaan ini tidak dapat dibatalkan.")) {
+    if (confirm("Apakah Anda yakin ingin menghapus postingan ini secara permanen dari basis data? Tindakan ini tidak dapat dibatalkan.")) {
       if (onDelete) {
         onDelete(post.id);
       }
     }
   };
 
-  // Convert color to Tailwind CSS custom classes
   const getCategoryTheme = (color: string) => {
     switch (color) {
       case "emerald":
@@ -315,7 +309,6 @@ export default function PostDetailModal({
     }
   };
 
-  // Dynamic Content Formatter with Embedded ad in exact middle paragraph
   const renderArticleBody = () => {
     const paragraphs = post.content.split(/\n\n+/).filter(Boolean);
     
@@ -340,7 +333,6 @@ export default function PostDetailModal({
           </p>
         ))}
         
-        {/* Native inside Article ad slot */}
         <AdSenseBox position="IN_ARTICLE_MID_NATIVE" variant="inline" />
         
         {secondHalf.map((paragraph, idx) => (
@@ -351,6 +343,11 @@ export default function PostDetailModal({
       </div>
     );
   };
+
+  // Menyaring maksimal 4 artikel terkait selain yang sedang dibaca
+  const artikelRekomendasi = allPosts
+    .filter((item) => item.id !== post.id)
+    .slice(0, 4);
 
   return (
     <div 
@@ -383,7 +380,7 @@ export default function PostDetailModal({
           <button 
             type="button"
             onClick={onClose}
-            className="p-1 px-1.5 rounded-lg bg-neutral-900 border border-neutral-800 hover:bg-neutral-850 text-neutral-400 hover:text-white transition-all"
+            className="p-1 px-1.5 rounded-lg bg-neutral-900 border border-neutral-800 hover:bg-neutral-850 text-neutral-400 hover:text-white transition-all cursor-pointer"
             title="Tutup lembaran"
           >
             <X className="h-4.5 w-4.5" />
@@ -402,8 +399,8 @@ export default function PostDetailModal({
       {/* Main Grid View Area */}
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-24">
         
-        {/* Main Article Content & Feed Responsive Ad Pillars */}
-        <main className="lg:col-span-8 flex flex-col gap-6">
+        {/* ================= SEKTOR KIRI: ARTIKEL UTAMA & KOMENTAR (8 dari 12 Kolom) ================= */}
+        <main className="lg:col-span-8 flex flex-col gap-6 w-full">
           
           {/* Top Header responsively scaled banner */}
           <AdSenseBox position="ARTICLE_LEADERBOARD_TOP" />
@@ -511,7 +508,7 @@ export default function PostDetailModal({
                 <button
                   type="button"
                   onClick={() => onLike(post.id)}
-                  className="flex items-center gap-2 hover:text-red-400 group border border-neutral-800 hover:border-red-500/30 bg-black/40 px-4 py-2.5 rounded-2xl transition-all h-11"
+                  className="flex items-center gap-2 hover:text-red-400 group border border-neutral-800 hover:border-red-500/30 bg-black/40 px-4 py-2.5 rounded-2xl transition-all h-11 cursor-pointer"
                 >
                   <ThumbsUp className="h-4 w-4 text-neutral-500 group-hover:text-red-400 group-hover:scale-110 transition-transform" />
                   <span className="font-bold text-neutral-400 group-hover:text-red-400 font-mono text-[11.5px]">
@@ -524,7 +521,7 @@ export default function PostDetailModal({
                   <button
                     type="button"
                     onClick={() => setShowShareMenu(!showShareMenu)}
-                    className={`flex items-center gap-2 group border bg-black/40 px-4 py-2.5 rounded-2xl transition-all h-11 ${
+                    className={`flex items-center gap-2 group border bg-black/40 px-4 py-2.5 rounded-2xl transition-all h-11 cursor-pointer ${
                       showShareMenu 
                         ? "border-emerald-500/50 text-emerald-400" 
                         : "border-neutral-800 hover:border-emerald-500/30 text-neutral-400 hover:text-emerald-400"
@@ -596,10 +593,8 @@ export default function PostDetailModal({
                       <div className="border-t border-neutral-850 my-1 py-1">
                         <button
                           type="button"
-                          onClick={() => {
-                            handleCopyLink();
-                          }}
-                          className={`w-full flex items-center justify-between p-2 rounded-xl text-xs font-semibold select-none transition-all border outline-none ${
+                          onClick={() => handleCopyLink()}
+                          className={`w-full flex items-center justify-between p-2 rounded-xl text-xs font-semibold select-none transition-all border outline-none cursor-pointer ${
                             copied
                               ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                               : "bg-neutral-900 border-neutral-800 hover:bg-neutral-850 hover:border-neutral-750 text-neutral-300"
@@ -625,7 +620,7 @@ export default function PostDetailModal({
                 <button
                   type="button"
                   onClick={handleDeleteClick}
-                  className="text-xs font-bold text-red-400/90 hover:text-red-400 hover:bg-neutral-800/10 p-2.5 px-3.5 rounded-2xl border border-transparent hover:border-red-500/20 flex items-center gap-1.5 transition-all h-11 sm:ml-auto"
+                  className="text-xs font-bold text-red-400/90 hover:text-red-400 hover:bg-neutral-800/10 p-2.5 px-3.5 rounded-2xl border border-transparent hover:border-red-500/20 flex items-center gap-1.5 transition-all h-11 sm:ml-auto cursor-pointer"
                 >
                   <Trash2 className="h-4 w-4" />
                   <span>Hapus Post</span>
@@ -694,289 +689,154 @@ export default function PostDetailModal({
                   placeholder="Ketik Nama Anda..."
                   value={newCommentName}
                   onChange={(e) => setNewCommentName(e.target.value)}
-                  maxLength={35}
+                  className="w-full bg-black/40 border border-neutral-800 rounded-2xl px-4 py-3 text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-emerald-500/40 transition-colors"
                   required
-                  className="bg-neutral-950 border border-neutral-850 focus:border-neutral-750 p-3 rounded-xl text-xs text-neutral-200 outline-none placeholder-neutral-600 transition-colors shadow-inner"
                 />
                 
                 <textarea
-                  placeholder="Tulis opini, saran, tanggapan Anda di sini..."
+                  placeholder="Tulis tanggapan atau pemikiran cerdas Anda di sini..."
                   value={newCommentText}
                   onChange={(e) => setNewCommentText(e.target.value)}
-                  rows={3}
-                  maxLength={500}
+                  className="w-full bg-black/40 border border-neutral-800 rounded-2xl px-4 py-3 text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-emerald-500/40 transition-colors min-h-[90px] resize-none"
                   required
-                  className="bg-neutral-950 border border-neutral-850 focus:border-neutral-750 p-3 rounded-xl text-xs text-neutral-200 outline-none placeholder-neutral-600 transition-colors shadow-inner resize-none overflow-y-auto"
                 />
-              </div>
-
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-[9px] font-mono text-neutral-500">
-                  * Komentar disimpan di memori peramban Anda secara berkala.
-                </span>
                 
-                <button
-                  type="submit"
-                  className="px-4.5 py-2 bg-emerald-500/15 hover:bg-emerald-500 text-emerald-400 hover:text-neutral-950 border border-emerald-500/30 font-bold font-mono text-[10.5px] uppercase tracking-wider rounded-xl transition-all duration-300 flex items-center gap-1.5 active:scale-[0.98]"
-                >
-                  <span>Kirim komentar</span>
-                  <Send className="h-3.5 w-3.5" />
-                </button>
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold font-mono uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-500/10"
+                  >
+                    <Send className="h-3 w-3" />
+                    <span>Kirim Tanggapan</span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>
-
-          {/* Automatic Recommended Articles Section */}
-          {(() => {
-            const recommendedPosts = (allPosts || [])
-              .filter((p) => p.id !== post.id)
-              .sort((a, b) => {
-                // First prioritize same category
-                if (a.category === post.category && b.category !== post.category) return -1;
-                if (b.category === post.category && a.category !== post.category) return 1;
-                // Then sort by likes/views or just default order
-                return (b.views || 0) - (a.views || 0);
-              })
-              .slice(0, 3);
-
-            if (recommendedPosts.length === 0) return null;
-
-            return (
-              <div className="bg-[#121110] border border-neutral-850 rounded-3xl p-5 sm:p-8 flex flex-col gap-6 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 h-44 w-44 bg-amber-500/[0.015] rounded-full blur-3xl pointer-events-none" />
-                
-                <div className="flex items-center justify-between border-b border-neutral-850 pb-4">
-                  <div className="flex items-center gap-2.5">
-                    <Sparkles className="h-5 w-5 text-amber-500 shrink-0" />
-                    <div>
-                      <h3 className="text-sm sm:text-base font-bold text-neutral-100 font-sans tracking-tight">
-                        Rekomendasi Artikel Untuk Anda
-                      </h3>
-                      <p className="text-[10px] sm:text-[11px] text-neutral-500 font-sans leading-relaxed">
-                        Lanjutkan membaca tulisan mading berkualitas lainnya tanpa perlu kembali ke halaman utama
-                      </p>
-                    </div>
-                  </div>
-                  <span className="font-mono text-[8px] uppercase font-semibold text-amber-400 bg-amber-400/5 border border-amber-400/10 px-2 py-0.5 rounded shrink-0">
-                    BACA TERUS
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {recommendedPosts.map((recPost) => {
-                    let badgeBg = "bg-neutral-800 border-neutral-700 text-neutral-400";
-                    if (recPost.categoryColor === "emerald") badgeBg = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
-                    if (recPost.categoryColor === "amber") badgeBg = "bg-amber-500/10 border-amber-500/20 text-amber-400";
-                    if (recPost.categoryColor === "sky") badgeBg = "bg-sky-500/10 border-sky-500/20 text-sky-400";
-                    if (recPost.categoryColor === "violet") badgeBg = "bg-violet-500/10 border-violet-500/20 text-violet-400";
-
-                    return (
-                      <a
-                        key={`recommended-${recPost.id}`}
-                        href={getPostPermalink(recPost)}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (onSelectPost) {
-                            onSelectPost(recPost);
-                          }
-                        }}
-                        className="group bg-black/35 border border-neutral-850/70 hover:border-amber-400/35 p-3.5 rounded-2xl flex flex-col justify-between overflow-hidden cursor-pointer transition-all duration-300 shadow-md transform hover:-translate-y-1 block"
-                      >
-                        <div className="flex flex-col gap-3">
-                          <div className="w-full aspect-[21/11] bg-neutral-950 rounded-xl overflow-hidden relative">
-                            <img 
-                              src={recPost.imageUrl || "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=800&q=80"} 
-                              alt={recPost.title} 
-                              className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
-                              referrerPolicy="no-referrer"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
-                            
-                            {/* Category tag */}
-                            <span className={`absolute bottom-2 right-2 text-[8px] font-mono tracking-widest font-bold uppercase px-2 py-0.5 rounded border ${badgeBg} backdrop-blur-md`}>
-                              {recPost.category}
-                            </span>
-                            
-                            {recPost.category === post.category && (
-                              <span className="absolute top-2 left-2 text-[7.5px] font-mono font-bold tracking-wider px-2 py-0.5 rounded border bg-amber-500/15 border-amber-500/25 text-amber-400 backdrop-blur-md">
-                                Sejenis
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex flex-col gap-1.5 px-0.5">
-                            <h4 className="text-xs font-bold text-neutral-100 tracking-tight leading-snug group-hover:text-amber-400 transition-colors line-clamp-2">
-                              {recPost.title}
-                            </h4>
-                            <div className="flex items-center justify-between text-[9px] font-mono text-neutral-500 pt-1">
-                              <span className="truncate max-w-[70px]">Oleh <strong className="text-neutral-400">{recPost.author}</strong></span>
-                              <div className="flex items-center gap-1 shrink-0">
-                                <Eye className="h-3 w-3 text-[#ff9f1c]" />
-                                <span>{recPost.views} Views</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* Bottom Footer block responsive banner */}
-          <AdSenseBox position="ARTICLE_LEADERBOARD_BOTTOM" />
-
         </main>
 
-        {/* Right Newspaper sidebar column (4 cols on wide, holds Skyscraper vertical ads & Meta widgets) */}
-        <aside className="lg:col-span-4 flex flex-col gap-6 sticky top-[80px]">
+        {/* ================= SEKTOR KANAN: SIDEBAR MELAYANG & REKOMENDASI (4 dari 12 Kolom) ================= */}
+        <aside className="lg:col-span-4 w-full flex flex-col gap-6">
           
+          {/* AdSense Box Atas Sidebar */}
+          <AdSenseBox position="SIDEBAR_TOP_NATIVE" variant="vertical" />
 
+          {/* Sticky Wrapper: Menjaga posisi elemen tetap melayang saat halaman digulir */}
+          <div className="lg:sticky lg:top-24 flex flex-col gap-6 w-full">
+            
+            {/* Box Rekomendasi Terkait */}
+            <div className="bg-[#121110] border border-neutral-850 rounded-3xl p-5 flex flex-col gap-4 shadow-2xl">
+              <div className="flex items-center gap-2 border-b border-neutral-850/60 pb-3">
+                <span className="w-1.5 h-3.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
+                <h3 className="text-[10px] font-mono uppercase font-bold tracking-widest text-[#ff9f1c]">
+                  Rekomendasi Terkait
+                </h3>
+              </div>
 
-          {/* Skyscraper Vertical AdSense Unit banner */}
-          <AdSenseBox position="SIDEBAR_VERTICAL_SKYSCRAPER" variant="vertical" />
-          
-          {/* Ad Placement Guidelines Box */}
-          <div className="border border-neutral-850/50 rounded-2xl p-4 bg-neutral-950/30 text-center">
-            <span className="text-[8px] font-mono text-neutral-500 uppercase font-black block mb-1">STRATEGI MONETISASI</span>
-            <p className="text-[9.5px] text-neutral-550 leading-relaxed text-neutral-500">
-              Desain ini dirancang khusus agar iklan dapat diisi otomatis (Auto-Ads) tanpa menggeser ruang teks, disetujui standard Google AdSense terbaru.
-            </p>
+              <div className="flex flex-col gap-2.5">
+                {artikelRekomendasi.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      if (onSelectPost) {
+                        onSelectPost(item);
+                      }
+                    }}
+                    className="w-full text-left p-3 rounded-2xl border border-neutral-900 bg-black/25 hover:border-neutral-850 hover:bg-neutral-900/40 transition-all group cursor-pointer flex flex-col gap-1.5"
+                  >
+                    <h4 className="text-xs font-semibold text-neutral-300 group-hover:text-emerald-400 line-clamp-2 transition-colors duration-200 leading-snug">
+                      {item.title}
+                    </h4>
+                    <div className="flex items-center justify-between text-[9px] font-mono text-neutral-500 w-full mt-1">
+                      <span>📁 {item.category || "Umum"}</span>
+                      <span className="flex items-center gap-1">👍 {item.likes || 0} Suka</span>
+                    </div>
+                  </button>
+                ))}
+
+                {/* Tampilan Fallback Jika Tidak Ada Artikel Lain */}
+                {artikelRekomendasi.length === 0 && (
+                  <p className="text-[10px] text-neutral-500 italic font-mono p-4 text-center">
+                    Belum ada artikel rekomendasi lainnya.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* AdSense Box Sticky Bawah Sidebar */}
+            <AdSenseBox position="SIDEBAR_STICKY_BOTTOM" variant="vertical" />
           </div>
-
         </aside>
 
       </div>
 
-      {/* Elegant Full-Screen Lightbox Image Magnifier Modal */}
-      {isImageZoomed && (
-        <div className="fixed inset-0 bg-black/98 backdrop-blur-2xl z-[100] flex flex-col items-center justify-between p-4 md:p-6 select-none animate-fadeIn">
-          {/* Top Navbar Info & Action Controls */}
-          <div className="w-full flex items-center justify-between border-b border-neutral-900 pb-3 md:pb-4 max-w-7xl">
-            <div className="flex items-center gap-2.5">
-              <span className="text-xl">🖼️</span>
-              <div>
-                <span className="text-[8px] font-mono font-black text-emerald-450 uppercase tracking-widest block">Standard AdSense Media Lightbox</span>
-                <span className="text-[11px] md:text-sm font-bold text-neutral-100 font-sans tracking-tight uppercase line-clamp-1 max-w-[200px] xs:max-w-xs sm:max-w-md md:max-w-lg">
-                  {post.title}
-                </span>
-              </div>
+      {/* ================= ADVANCED INTERACTIVE IMAGE ZOOM LIGHTBOX LAYER ================= */}
+      {isImageZoomed && post.imageUrl && (
+        <div className="fixed inset-0 mountaineer z-[100] bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 select-none animate-fadeIn">
+          {/* Lightbox Control Strip Bar */}
+          <div className="w-full flex items-center justify-between bg-[#11100f]/80 backdrop-blur-md border border-neutral-850 rounded-2xl px-4 py-3 max-w-4xl mx-auto z-10 shadow-2xl mt-2">
+            <div className="flex flex-col min-w-0 pr-2">
+              <span className="text-[8px] font-mono tracking-widest text-emerald-450 font-extrabold uppercase">PREVIEW DETAIL GAMBAR</span>
+              <span className="text-xs text-neutral-200 font-bold truncate max-w-[200px] sm:max-w-md">{post.title}</span>
             </div>
-
-            {/* Live scaling state indicator */}
-            <div className="hidden sm:flex items-center gap-3 font-mono text-[9px] text-neutral-550 bg-neutral-950 px-3 py-1 rounded-full border border-neutral-900">
-              <span className="text-neutral-550">ZOOM:</span>
-              <span className="text-emerald-400 font-bold">{(zoomScale * 100).toFixed(0)}%</span>
-              <span className="text-neutral-800">|</span>
-              <span className="text-neutral-550">ROTASI:</span>
-              <span className="text-emerald-400 font-bold">{imageRotation}°</span>
-            </div>
-
-            {/* Dismiss trigger */}
-            <button
-              onClick={() => {
-                setIsImageZoomed(false);
-                setZoomScale(1);
-                setImageRotation(0);
-              }}
-              className="p-1.5 px-3 rounded-lg bg-neutral-900 hover:bg-neutral-850 text-neutral-300 hover:text-white transition-all text-xs font-mono font-black border border-neutral-800 cursor-pointer uppercase flex items-center gap-1.5"
-            >
-              <span>Tutup</span>
-              <span>✕</span>
-            </button>
-          </div>
-
-          {/* Main Image Port viewport area */}
-          <div className="flex-1 w-full flex items-center justify-center relative overflow-hidden my-4">
             
-            {/* Transparent checkerboard preview background */}
-            <div className="absolute inset-0 bg-[radial-gradient(#1c1917_1.5px,transparent_1.5px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
-
-            {/* Real-time zoom and rotate transform viewport */}
-            <div 
-              className="transition-transform duration-350 ease-out flex items-center justify-center max-w-[90%] max-h-[85vh]"
-              style={{ 
-                transform: `scale(${zoomScale}) rotate(${imageRotation}deg)`,
-              }}
-            >
-              <img
-                src={post.imageUrl || "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=150&q=80"}
-                alt={post.title}
-                className="rounded-xl shadow-2xl object-contain max-h-[65vh] max-w-full select-all border border-neutral-850/80 transition-shadow duration-500 hover:shadow-emerald-500/10"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-
-            {/* Floating Control Hub */}
-            <div className="absolute bottom-6 bg-[#121110]/95 backdrop-blur-lg border border-neutral-850 px-5 py-2.5 rounded-2xl flex items-center gap-4 shadow-2xl z-20">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
-                onClick={() => setZoomScale(prev => Math.max(0.5, prev - 0.25))}
-                className="p-1 text-neutral-450 hover:text-emerald-400 transition-colors flex items-center gap-1 cursor-pointer"
-                title="Perkecil Gambar"
+                onClick={() => setZoomScale(prev => Math.min(prev + 0.25, 3))}
+                className="p-2 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-neutral-400 hover:text-white rounded-xl transition-all cursor-pointer"
+                title="Perbesar"
               >
-                <ZoomOut className="h-4 w-4" />
+                <ZoomIn size={14} />
               </button>
-              
               <button
                 type="button"
-                onClick={() => setZoomScale(1)}
-                className="py-0.5 px-2.5 bg-neutral-900 hover:bg-neutral-850 text-neutral-400 hover:text-neutral-100 font-mono text-[9px] font-black border border-neutral-800 rounded-lg transition-all"
-                title="Pulihkan ukuran"
+                onClick={() => setZoomScale(prev => Math.max(prev - 0.25, 0.5))}
+                className="p-2 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-neutral-400 hover:text-white rounded-xl transition-all cursor-pointer"
+                title="Perkecil"
               >
-                RESPONSIVE (100%)
+                <ZoomOut size={14} />
               </button>
-
-              <button
-                type="button"
-                onClick={() => setZoomScale(prev => Math.min(3, prev + 0.25))}
-                className="p-1 text-neutral-450 hover:text-emerald-400 transition-colors flex items-center gap-1 cursor-pointer"
-                title="Perbesar Gambar"
-              >
-                <ZoomIn className="h-4 w-4" />
-              </button>
-
-              <span className="text-neutral-800 text-xs">|</span>
-
               <button
                 type="button"
                 onClick={() => setImageRotation(prev => (prev + 90) % 360)}
-                className="p-1 text-neutral-450 hover:text-emerald-400 font-mono text-xs font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer"
-                title="Putar gambar 90°"
+                className="p-2 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-neutral-400 hover:text-white rounded-xl transition-all cursor-pointer"
+                title="Putar Gambar"
               >
-                <RefreshCw className="h-3.5 w-3.5" />
-                <span className="text-[8.5px] font-bold font-mono">PUTAR</span>
+                <RefreshCw size={14} />
+              </button>
+              <div className="w-px h-5 bg-neutral-850 mx-1" />
+              <button
+                type="button"
+                onClick={() => setIsImageZoomed(false)}
+                className="p-2 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-neutral-400 hover:text-white rounded-xl transition-all cursor-pointer"
+                title="Tutup Tampilan"
+              >
+                <X size={14} />
               </button>
             </div>
           </div>
 
-          {/* Floating Mini AdSense Spot for media view compliance */}
-          <div className="w-full max-w-4xl border border-neutral-850 bg-neutral-950 p-3 md:p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-3 text-left">
-            <div className="flex items-center gap-2.5">
-              <span className="text-emerald-400 text-lg">💡</span>
-              <div>
-                <span className="text-[8px] font-mono text-neutral-500 block leading-none">REKOMENDASI PENERBIT:</span>
-                <h6 className="text-[10px] md:text-xs font-bold text-neutral-200 font-sans tracking-tight leading-snug">
-                  Gambar beresolusi tinggi ini menginduksi durasi kunjungan (Session Duration) yang lebih lama untuk penempatan Auto-Ads Anda.
-                </h6>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <a
-                href="https://sheets.new"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-neutral-300 hover:text-emerald-400 rounded-lg text-[9px] font-mono font-bold uppercase tracking-wider transition-all"
-              >
-                Daftar Blog Pro
-              </a>
-            </div>
+          {/* Interactive Zoom/Rotate Viewport Stage */}
+          <div className="flex-1 w-full flex items-center justify-center overflow-hidden relative p-4">
+            <img
+              src={post.imageUrl}
+              alt={post.title}
+              className="max-w-full max-h-[78vh] object-contain rounded-xl shadow-2xl transition-transform duration-200 ease-out"
+              style={{
+                transform: `scale(${zoomScale}) rotate(${imageRotation}deg)`,
+              }}
+              referrerPolicy="no-referrer"
+            />
+          </div>
+
+          {/* Status Metric Footer Indicator */}
+          <div className="w-full text-center pb-3 text-[10px] font-mono text-neutral-600">
+            Skala: {Math.round(zoomScale * 100)}% • Rotasi: {imageRotation}° • Klik Tombol Silang Untuk Kembali Ke Artikel
           </div>
         </div>
       )}
-
     </div>
   );
 }

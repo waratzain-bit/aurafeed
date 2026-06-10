@@ -253,14 +253,17 @@ export default function App() {
         const params = new URLSearchParams(window.location.search);
         const postParam = params.get("post") || params.get("article");
         
-        // Parse from URL pathname (e.g., /post/slug-artikel)
-        let pathIdentifier = "";
-        const path = window.location.pathname;
-        if (path.includes("/post/")) {
-          pathIdentifier = path.split("/post/")[1];
-        } else if (path.includes("/article/")) {
-          pathIdentifier = path.split("/article/")[1];
-        }
+       // Parse from URL pathname (e.g., /post/slug-artikel.html)
+let pathIdentifier = "";
+const path = window.location.pathname;
+
+if (path.includes("/post/")) {
+  // Ambil bagian setelah /post/ dan hapus .html jika ada
+  pathIdentifier = path.split("/post/")[1].replace(/\.html$/, "");
+} else if (path.includes("/article/")) {
+  // Ambil bagian setelah /article/ dan hapus .html jika ada
+  pathIdentifier = path.split("/article/")[1].replace(/\.html$/, "");
+}
 
         // Parse from hash (e.g., #post=slug)
         const hashParam = window.location.hash.replace("#", "");
@@ -386,15 +389,13 @@ export default function App() {
         type: "website"
       });
 
-      // Synchronize push state back to base path - Hanya jika data selesai dimuat
-      if (!isLoading && posts.length > 0) {
-        const currentPath = window.location.pathname;
-        if (currentPath.includes("/post/") || currentPath.includes("/article/")) {
-          window.history.pushState(null, "", basePath);
-        }
+      // Synchronize push state back to base path
+      const currentPath = window.location.pathname;
+      if (currentPath.includes("/post/") || currentPath.includes("/article/")) {
+        window.history.pushState(null, "", basePath);
       }
     }
-  }, [selectedReadPost, websiteTitle, posts, isLoading]);
+  }, [selectedReadPost, websiteTitle]);
 
   // Handle Sheet Connection Save
   const handleSaveSheetsUrl = (url: string) => {
