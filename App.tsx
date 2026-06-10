@@ -386,13 +386,15 @@ export default function App() {
         type: "website"
       });
 
-      // Synchronize push state back to base path
-      const currentPath = window.location.pathname;
-      if (currentPath.includes("/post/") || currentPath.includes("/article/")) {
-        window.history.pushState(null, "", basePath);
+      // Synchronize push state back to base path - Hanya jika data selesai dimuat
+      if (!isLoading && posts.length > 0) {
+        const currentPath = window.location.pathname;
+        if (currentPath.includes("/post/") || currentPath.includes("/article/")) {
+          window.history.pushState(null, "", basePath);
+        }
       }
     }
-  }, [selectedReadPost, websiteTitle]);
+  }, [selectedReadPost, websiteTitle, posts, isLoading]);
 
   // Handle Sheet Connection Save
   const handleSaveSheetsUrl = (url: string) => {

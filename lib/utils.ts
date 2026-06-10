@@ -1,7 +1,7 @@
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
-*/
+ */
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
  
@@ -31,26 +31,31 @@ export function getBasePath() {
   return path.endsWith("/") ? path.slice(0, -1) : path;
 }
 
+// 🛠️ PERBAIKAN 1: Menambahkan akhiran .html pada permalink artikel
 export function getPostPermalink(post: { id: string; title: string }) {
   const basePath = getBasePath();
-  return `${basePath}/post/${getPostSlug(post)}`;
+  return `${basePath}/post/${getPostSlug(post)}.html`;
 }
 
+// 🛠️ PERBAIKAN 2: Membersihkan .html saat membaca URL agar artikel tetap bisa ditemukan
 export function findPostByIdentifier<T extends { id: string; title: string }>(identifier: string, allPosts: T[]) {
   if (!identifier) return null;
   
+  // Hapus akhiran .html jika ada pada identifier agar pencarian slug/ID tetap akurat
+  const cleanIdentifier = identifier.endsWith(".html") ? identifier.slice(0, -5) : identifier;
+  
   // Try exact ID match first
-  let match = allPosts.find((p) => p.id === identifier);
+  let match = allPosts.find((p) => p.id === cleanIdentifier);
   if (match) return match;
 
   // Try exact slug match
-  match = allPosts.find((p) => getPostSlug(p) === identifier);
+  match = allPosts.find((p) => getPostSlug(p) === cleanIdentifier);
   if (match) return match;
 
   // Try decoding from slug suffix by splitting on last hyphen (e.g. "cara-menulis-123" -> ID "123")
-  const lastHyphenIndex = identifier.lastIndexOf("-");
+  const lastHyphenIndex = cleanIdentifier.lastIndexOf("-");
   if (lastHyphenIndex !== -1) {
-    const possibleId = identifier.substring(lastHyphenIndex + 1);
+    const possibleId = cleanIdentifier.substring(lastHyphenIndex + 1);
     match = allPosts.find((p) => p.id === possibleId);
     if (match) return match;
   }
@@ -58,7 +63,7 @@ export function findPostByIdentifier<T extends { id: string; title: string }>(id
   // Fallback fuzzy match
   match = allPosts.find((p) => {
     const postSlug = getPostSlug(p);
-    return postSlug.includes(identifier) || identifier.includes(postSlug);
+    return postSlug.includes(cleanIdentifier) || cleanIdentifier.includes(postSlug);
   });
   return match || null;
 }
