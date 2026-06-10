@@ -22,8 +22,8 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // server.ts
-var import_express = __toESM(require("express"), 1);
-var import_path = __toESM(require("path"), 1);
+var import_express = __toESM(require("express"));
+var import_path = __toESM(require("path"));
 var import_vite = require("vite");
 var import_genai = require("@google/genai");
 async function startServer() {
