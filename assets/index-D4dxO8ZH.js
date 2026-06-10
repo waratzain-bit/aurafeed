@@ -114,7 +114,7 @@ Keamanan data di era digital siber modern saat ini sebenarnya bukanlah masalah d
 `,i+=`    <changefreq>daily</changefreq>
 `,i+=`    <priority>1.0</priority>
 `,i+=`  </url>
-`,a.forEach(b=>{const m=b.createdAt||b.date||new Date().toISOString();let k="";try{k=new Date(m).toISOString().split("T")[0]}catch{k=new Date().toISOString().split("T")[0]}const h=ke(b),u=`${l}${h}`;i+=`  <url>
+`,a.forEach(b=>{const m=b.createdAt||b.date||new Date().toISOString();let k="";try{k=new Date(m).toISOString().split("T")[0]}catch{k=new Date().toISOString().split("T")[0]}const h=ke(b).replace(/\.html$/,""),u=`${l}${h}`;i+=`  <url>
 `,i+=`    <loc>${u}</loc>
 `,i+=`    <lastmod>${k}</lastmod>
 `,i+=`    <changefreq>weekly</changefreq>
